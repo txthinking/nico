@@ -10,7 +10,7 @@ $ nami install github.com/txthinking/nico
 
 ### Reverse proxy
 
-> Make sure your domains are already resolved to your server IP
+> Make sure your domains are already resolved to your server IP and open 80/443 port
 
 ```
 $ nico 'domain.com http://127.0.0.1:2020'
@@ -34,7 +34,7 @@ You may like [joker](https://github.com/txthinking/joker)
 
 ## Why
 
-Nico is simple HTTP2 web server, but she is enough for me. If you want to use rewrite, load balancing, you need to consider nginx or others.
+Nico is a simple HTTP2 web server, but she is enough in mose cases. If you want to use connection pool, rewrite, load balancing, you need to consider nginx or others.
 
 ## License
 

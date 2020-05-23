@@ -22,6 +22,6 @@ GOOS=openbsd GOARCH=arm64 go build --ldflags="-w -s" -o _/nico_openbsd_arm64
 GOOS=windows GOARCH=amd64 go build --ldflags="-w -s" -o _/nico_windows_amd64.exe
 GOOS=windows GOARCH=386 go build --ldflags="-w -s" -o _/nico_windows_386.exe
 
-nico release github.com/txthinking/nico $1 _
+nami release github.com/txthinking/nico $1 _
 
 rm -rf _

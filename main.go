@@ -30,7 +30,7 @@ Nico:
 
 	A HTTP2 web server for reverse proxy and single page application, automatically apply for ssl certificate, zero-configuration.
 
-Make sure your domains are already resolved to your server IP
+Make sure your domains are already resolved to your server IP and open 80/443 port
 
 Reverse proxy:
 
@@ -45,7 +45,7 @@ Support multiple domain in one command:
 	$ nico 'domain1.com http://127.0.0.1:2020' 'domain2.com /path/to/web/root'
 
 Verson:
-	v20200528
+	v20200523
 
 Copyright:
 	https://github.com/txthinking/nico
