@@ -34,7 +34,7 @@ You may like [joker](https://github.com/txthinking/joker)
 
 ## Why
 
-Nico is a simple HTTP2 web server, but she is enough in mose cases. If you want to use connection pool, rewrite, load balancing, you need to consider nginx or others.
+Nico is a simple HTTP2 web server, but she is enough in mose cases. If you want to use rewrite, load balancing, you need to consider nginx or others.
 
 ## License
 

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"errors"
 	"log"
 	"net/http"
@@ -11,6 +12,7 @@ import (
 	"github.com/didip/tollbooth/limiter"
 	"github.com/unrolled/secure"
 	"github.com/urfave/negroni"
+	"golang.org/x/crypto/acme/autocert"
 )
 
 func Server(ll []string) (*http.Server, error) {
@@ -27,7 +29,6 @@ func Server(ll []string) (*http.Server, error) {
 
 	n := negroni.New()
 	n.Use(negroni.NewRecovery())
-	n.Use(negroni.NewLogger())
 	n.Use(negroni.HandlerFunc(secure.New(secure.Options{
 		AllowedHosts:            nico.Domains(),
 		SSLRedirect:             false,
@@ -44,6 +45,10 @@ func Server(ll []string) (*http.Server, error) {
 		w.Header().Set("Server", "github.com/txthinking/nico")
 		next(w, r)
 	})
+	n.UseFunc(func(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
+		r.Body = http.MaxBytesReader(w, r.Body, 3*1024*1024) // 3M
+		next(w, r)
+	})
 
 	lmt := tollbooth.NewLimiter(30, &limiter.ExpirableOptions{DefaultExpirationTTL: time.Hour})
 	lmt.SetIPLookups([]string{"RemoteAddr", "X-Forwarded-For", "X-Real-IP"})
@@ -58,8 +63,17 @@ func Server(ll []string) (*http.Server, error) {
 		next(w, r)
 	})
 
+	n.Use(gzip.Gzip(gzip.DefaultCompression))
+
 	n.UseHandler(nico)
 
+	m := autocert.Manager{
+		Cache:      autocert.DirCache(".letsencrypt"),
+		Prompt:     autocert.AcceptTOS,
+		HostPolicy: autocert.HostWhitelist(nico.Domains()...),
+		Email:      "cloud+nico@txthinking.com",
+	}
+	go http.ListenAndServe(":80", m.HTTPHandler(nil))
 	return &http.Server{
 		Addr:           ":443",
 		ReadTimeout:    5 * time.Second,
@@ -68,6 +82,6 @@ func Server(ll []string) (*http.Server, error) {
 		MaxHeaderBytes: 1 << 20,
 		Handler:        n,
 		ErrorLog:       log.New(&tlserr{}, "", log.LstdFlags),
-		TLSConfig:      TLS(nico.Domains()),
+		TLSConfig:      &tls.Config{GetCertificate: m.GetCertificate},
 	}, nil
 }
