@@ -10,6 +10,7 @@ import (
 
 	"github.com/didip/tollbooth"
 	"github.com/didip/tollbooth/limiter"
+	"github.com/phyber/negroni-gzip/gzip"
 	"github.com/unrolled/secure"
 	"github.com/urfave/negroni"
 	"golang.org/x/crypto/acme/autocert"

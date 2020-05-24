@@ -45,7 +45,7 @@ Support multiple domain in one command:
 	$ nico 'domain1.com http://127.0.0.1:2020' 'domain2.com /path/to/web/root'
 
 Verson:
-	v20200523
+	v20200524
 
 Copyright:
 	https://github.com/txthinking/nico
