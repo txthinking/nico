@@ -36,12 +36,46 @@ func (n *Nico) Add(domain, to string) error {
 	if !strings.HasPrefix(to, "http://") && !strings.HasPrefix(to, "https://") {
 		n.Handlers[domain] = http.FileServer(NewWebRoot(to))
 	}
-	if strings.HasPrefix(to, "http://") || strings.HasPrefix(to, "https://") {
+	if strings.HasPrefix(to, "http://") {
 		u, err := url.Parse(to)
 		if err != nil {
 			return err
 		}
 		n.Handlers[domain] = httputil.NewSingleHostReverseProxy(u)
+	}
+	if strings.HasPrefix(to, "https://") {
+		u, err := url.Parse(to)
+		if err != nil {
+			return err
+		}
+		singleJoiningSlash := func(a, b string) string {
+			aslash := strings.HasSuffix(a, "/")
+			bslash := strings.HasPrefix(b, "/")
+			switch {
+			case aslash && bslash:
+				return a + b[1:]
+			case !aslash && !bslash:
+				return a + "/" + b
+			}
+			return a + b
+		}
+		targetQuery := u.RawQuery
+		director := func(req *http.Request) {
+			req.URL.Scheme = u.Scheme
+			req.URL.Host = u.Host
+			req.URL.Path = singleJoiningSlash(u.Path, req.URL.Path)
+			if targetQuery == "" || req.URL.RawQuery == "" {
+				req.URL.RawQuery = targetQuery + req.URL.RawQuery
+			} else {
+				req.URL.RawQuery = targetQuery + "&" + req.URL.RawQuery
+			}
+			req.Host = u.Host
+			if _, ok := req.Header["User-Agent"]; !ok {
+				// explicitly disable User-Agent so it's not set to default value
+				req.Header.Set("User-Agent", "")
+			}
+		}
+		n.Handlers[domain] = &httputil.ReverseProxy{Director: director}
 	}
 	return nil
 }
