@@ -10,7 +10,6 @@ import (
 
 	"github.com/didip/tollbooth"
 	"github.com/didip/tollbooth/limiter"
-	"github.com/phyber/negroni-gzip/gzip"
 	"github.com/unrolled/secure"
 	"github.com/urfave/negroni"
 	"golang.org/x/crypto/acme/autocert"
@@ -46,10 +45,10 @@ func Server(ll []string) (*http.Server, error) {
 		w.Header().Set("Server", "github.com/txthinking/nico")
 		next(w, r)
 	})
-	n.UseFunc(func(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
-		r.Body = http.MaxBytesReader(w, r.Body, 3*1024*1024) // 3M
-		next(w, r)
-	})
+	// n.UseFunc(func(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
+	// 	r.Body = http.MaxBytesReader(w, r.Body, 3*1024*1024) // 3M
+	// 	next(w, r)
+	// })
 
 	lmt := tollbooth.NewLimiter(30, &limiter.ExpirableOptions{DefaultExpirationTTL: time.Hour})
 	lmt.SetIPLookups([]string{"RemoteAddr", "X-Forwarded-For", "X-Real-IP"})
@@ -64,7 +63,7 @@ func Server(ll []string) (*http.Server, error) {
 		next(w, r)
 	})
 
-	n.Use(gzip.Gzip(gzip.DefaultCompression))
+	// n.Use(gzip.Gzip(gzip.DefaultCompression))
 
 	n.UseHandler(nico)
 
@@ -76,10 +75,10 @@ func Server(ll []string) (*http.Server, error) {
 	}
 	go http.ListenAndServe(":80", m.HTTPHandler(nil))
 	return &http.Server{
-		Addr:           ":443",
-		ReadTimeout:    5 * time.Second,
-		WriteTimeout:   10 * time.Second,
-		IdleTimeout:    120 * time.Second,
+		Addr: ":443",
+		// ReadTimeout:    5 * time.Second,
+		// WriteTimeout:   10 * time.Second,
+		// IdleTimeout:    120 * time.Second,
 		MaxHeaderBytes: 1 << 20,
 		Handler:        n,
 		ErrorLog:       log.New(&tlserr{}, "", log.LstdFlags),
