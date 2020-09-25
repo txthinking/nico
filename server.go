@@ -45,10 +45,12 @@ func Server(ll []string) (*http.Server, error) {
 		w.Header().Set("Server", "github.com/txthinking/nico")
 		next(w, r)
 	})
-	// n.UseFunc(func(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
-	// 	r.Body = http.MaxBytesReader(w, r.Body, 3*1024*1024) // 3M
-	// 	next(w, r)
-	// })
+	if maxbody != 0 {
+		n.UseFunc(func(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
+			r.Body = http.MaxBytesReader(w, r.Body, maxbody*1024*1024)
+			next(w, r)
+		})
+	}
 
 	lmt := tollbooth.NewLimiter(30, &limiter.ExpirableOptions{DefaultExpirationTTL: time.Hour})
 	lmt.SetIPLookups([]string{"RemoteAddr", "X-Forwarded-For", "X-Real-IP"})
@@ -63,8 +65,6 @@ func Server(ll []string) (*http.Server, error) {
 		next(w, r)
 	})
 
-	// n.Use(gzip.Gzip(gzip.DefaultCompression))
-
 	n.UseHandler(nico)
 
 	m := autocert.Manager{
@@ -75,10 +75,10 @@ func Server(ll []string) (*http.Server, error) {
 	}
 	go http.ListenAndServe(":80", m.HTTPHandler(nil))
 	return &http.Server{
-		Addr: ":443",
-		// ReadTimeout:    5 * time.Second,
-		// WriteTimeout:   10 * time.Second,
-		// IdleTimeout:    120 * time.Second,
+		Addr:           ":443",
+		ReadTimeout:    time.Duration(timeout) * time.Second,
+		WriteTimeout:   time.Duration(timeout) * time.Second,
+		IdleTimeout:    time.Duration(timeout) * time.Second,
 		MaxHeaderBytes: 1 << 20,
 		Handler:        n,
 		ErrorLog:       log.New(&tlserr{}, "", log.LstdFlags),

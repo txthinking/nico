@@ -20,10 +20,17 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 )
 
+var maxbody int64 = 0
+var timeout int64 = 0
+
 func main() {
+	maxbody, _ = strconv.ParseInt(os.Getenv("NICO_MAX_BODY"), 10, 64)
+	timeout, _ = strconv.ParseInt(os.Getenv("NICO_TIMEOUT"), 10, 64)
+
 	if len(os.Args) == 1 || (len(os.Args) > 1 && (os.Args[1] == "version" || os.Args[1] == "help" || os.Args[1] == "-v" || os.Args[1] == "--version" || os.Args[1] == "-h" || os.Args[1] == "--help")) {
 		fmt.Print(`
 Nico:
@@ -45,7 +52,7 @@ Support multiple domain in one command:
 	$ nico 'domain1.com http://127.0.0.1:2020' 'domain2.com /path/to/web/root'
 
 Verson:
-	v20200529
+	v20200925
 
 Copyright:
 	https://github.com/txthinking/nico
