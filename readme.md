@@ -1,5 +1,10 @@
 # Nico
 
+[中文](readme_zh.md)
+
+[![Donate](https://img.shields.io/badge/Support-Donate-ff69b4.svg)](https://www.txthinking.com/opensource-support.html)
+[![Slack](https://img.shields.io/badge/Join-Slack-ff69b4.svg)](https://docs.google.com/forms/d/e/1FAIpQLSdzMwPtDue3QoezXSKfhW88BXp57wkbDXnLaqokJqLeSWP9vQ/viewform)
+
 A HTTP2 web server for reverse proxy and single page application, automatically apply for ssl certificate, zero-configuration.
 
 ### Install via [nami](https://github.com/txthinking/nami)
