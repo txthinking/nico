@@ -42,7 +42,7 @@ func Server(ll []string) (*http.Server, error) {
 	}).HandlerFuncWithNext))
 
 	n.UseFunc(func(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
-		w.Header().Set("Server", "Webhosting WRTS")
+		w.Header().Set("Server", "github.com/txthinking/nico")
 		next(w, r)
 	})
 	if maxbody != 0 {
@@ -71,7 +71,7 @@ func Server(ll []string) (*http.Server, error) {
 		Cache:      autocert.DirCache(".letsencrypt"),
 		Prompt:     autocert.AcceptTOS,
 		HostPolicy: autocert.HostWhitelist(nico.Domains()...),
-		Email:      "webhosting@weruletheshow.com",
+		Email:      "cloud+nico@txthinking.com",
 	}
 	cfg := &tls.Config{
 		GetCertificate: m.GetCertificate,
