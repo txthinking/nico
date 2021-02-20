@@ -42,7 +42,7 @@ func Server(ll []string) (*http.Server, error) {
 	}).HandlerFuncWithNext))
 
 	n.UseFunc(func(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
-		w.Header().Set("Server", "github.com/txthinking/nico")
+		w.Header().Set("Server", "Webhosting WRTS")
 		next(w, r)
 	})
 	if maxbody != 0 {
@@ -71,7 +71,19 @@ func Server(ll []string) (*http.Server, error) {
 		Cache:      autocert.DirCache(".letsencrypt"),
 		Prompt:     autocert.AcceptTOS,
 		HostPolicy: autocert.HostWhitelist(nico.Domains()...),
-		Email:      "cloud+nico@txthinking.com",
+		Email:      "webhosting@weruletheshow.com",
+	}
+	cfg := &tls.Config{
+		GetCertificate: m.GetCertificate,
+		MinVersion:               tls.VersionTLS12,
+		CurvePreferences:         []tls.CurveID{tls.CurveP521, tls.CurveP384, tls.CurveP256},
+		PreferServerCipherSuites: true,
+		CipherSuites: []uint16{
+			tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+			tls.TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,
+			tls.TLS_RSA_WITH_AES_256_GCM_SHA384,
+			tls.TLS_RSA_WITH_AES_256_CBC_SHA,
+		},
 	}
 	go http.ListenAndServe(":80", m.HTTPHandler(nil))
 	return &http.Server{
@@ -82,6 +94,7 @@ func Server(ll []string) (*http.Server, error) {
 		MaxHeaderBytes: 1 << 20,
 		Handler:        n,
 		ErrorLog:       log.New(&tlserr{}, "", log.LstdFlags),
-		TLSConfig:      &tls.Config{GetCertificate: m.GetCertificate},
+		TLSConfig:      cfg,
+		TLSNextProto: make(map[string]func(*http.Server, *tls.Conn, http.Handler), 0),
 	}, nil
 }
