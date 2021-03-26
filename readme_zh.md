@@ -41,6 +41,10 @@ $ nico 'domain1.com http://127.0.0.1:2020' 'domain2.com /path/to/web/root' 'doma
 
 Nico 是一个简单的HTTP2 web server, 但是在很多时候她已经足够了. 如果你需要更多复杂的功能, 可以考虑nginx等
 
+## 作者
+
+A project by [txthinking](https://www.txthinking.com)
+
 ## 开源协议
 
 基于 GPLv3 协议开源
