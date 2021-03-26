@@ -41,6 +41,10 @@ You may like [joker](https://github.com/txthinking/joker)
 
 Nico is a simple HTTP2 web server, but she is enough in most cases. If you want to use rewrite, load balancing, you need to consider nginx or others.
 
+## Author
+
+A project by [txthinking](https://www.txthinking.com)
+
 ## License
 
 Licensed under The GPLv3 License
