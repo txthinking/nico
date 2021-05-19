@@ -23,25 +23,57 @@ import (
 )
 
 type Nico struct {
-	Handlers map[string]http.Handler
+	Handlers map[string]map[string]http.Handler
 }
 
 func NewNico() *Nico {
 	return &Nico{
-		Handlers: make(map[string]http.Handler),
+		Handlers: make(map[string]map[string]http.Handler),
 	}
 }
 
-func (n *Nico) Add(domain, to string) error {
+func (n *Nico) GetHandler(domain, path string) (http.Handler, bool) {
+	m, ok := n.Handlers[domain]
+	if !ok {
+		return nil, false
+	}
+	h, ok := m[path]
+	if ok {
+		return h, true
+	}
+	for k, h := range m {
+		if k != "/" && strings.HasSuffix(k, "/") && strings.HasPrefix(path, k) {
+			return h, true
+		}
+	}
+	h, ok = m[""]
+	if ok {
+		return h, true
+	}
+	return nil, false
+}
+
+func (n *Nico) Add(domainpath, to string) error {
+	l := strings.SplitN(domainpath, "/", 2)
+	domain, path := l[0], ""
+	if len(l) == 2 {
+		path = "/" + l[1]
+	}
+	m, ok := n.Handlers[domain]
+	if !ok {
+		m = make(map[string]http.Handler)
+		n.Handlers[domain] = m
+	}
+
 	if !strings.HasPrefix(to, "http://") && !strings.HasPrefix(to, "https://") {
-		n.Handlers[domain] = http.FileServer(NewWebRoot(to))
+		m[path] = http.FileServer(NewWebRoot(to))
 	}
 	if strings.HasPrefix(to, "http://") {
 		u, err := url.Parse(to)
 		if err != nil {
 			return err
 		}
-		n.Handlers[domain] = httputil.NewSingleHostReverseProxy(u)
+		m[path] = httputil.NewSingleHostReverseProxy(u)
 	}
 	if strings.HasPrefix(to, "https://") {
 		u, err := url.Parse(to)
@@ -75,7 +107,7 @@ func (n *Nico) Add(domain, to string) error {
 				req.Header.Set("User-Agent", "")
 			}
 		}
-		n.Handlers[domain] = &httputil.ReverseProxy{Director: director}
+		m[path] = &httputil.ReverseProxy{Director: director}
 	}
 	return nil
 }
@@ -98,7 +130,11 @@ func (n *Nico) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	f, ok := n.Handlers[h]
+	path := r.URL.Path
+	if !strings.HasPrefix(path, "/") {
+		path = "/" + path
+	}
+	f, ok := n.GetHandler(h, path)
 	if !ok {
 		http.Error(w, "", 400)
 		return

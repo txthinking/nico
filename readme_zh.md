@@ -13,24 +13,35 @@
 $ nami install github.com/txthinking/nico
 ```
 
-### 反向代理
+### 静态服务器, 支持单页应用
 
 > 确保你的域名已经指向你的服务器, 并且防火墙已经开放服务器的80/443端口
-
-```
-$ nico 'domain.com http://127.0.0.1:2020'
-```
-
-### 静态服务器, 支持单页应用
 
 ```
 $ nico 'domain.com /path/to/web/root'
 ```
 
-### 多个可以在一条命令上
+### 反向代理
 
 ```
-$ nico 'domain1.com http://127.0.0.1:2020' 'domain2.com /path/to/web/root' 'domain3.com http://127.0.0.1:3030'
+$ nico 'domain.com http://127.0.0.1:2020'
+```
+
+### 根据路径分发
+
+> Exact match: domain.com/ws<br/>
+> Prefix match when / is suffix: domain.com/api/<br/>
+> Default match: domain.com<br/>
+> A special one: domain.com/ is exact match
+
+```
+$ nico 'domain.com /path/to/web/root' 'domain.com/ws http://127.0.0.1:9999' 'domain.com/api/ http://127.0.0.1:2020'
+```
+
+### 多个域名
+
+```
+$ nico 'domain0.com /path/to/web/root' 'domain1.com /another/web/root' 'domain1.com/ws http://127.0.0.1:9999' 'domain1.com/api/ http://127.0.0.1:2020'
 ```
 
 ### 守护进程

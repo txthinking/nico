@@ -39,20 +39,29 @@ Nico:
 
 Make sure your domains are already resolved to your server IP and open 80/443 port
 
-Reverse proxy:
-
-	$ nico 'domain.com http://127.0.0.1:2020'
-
 Static server, can be used for Single Page Application:
 
 	$ nico 'domain.com /path/to/web/root'
 
-Support multiple domain in one command:
+Reverse proxy:
 
-	$ nico 'domain1.com http://127.0.0.1:2020' 'domain2.com /path/to/web/root'
+	$ nico 'domain.com http://127.0.0.1:2020'
+
+Dispatch according to path, such as, exact match: domain.com/ws; prefix match when / is suffix: domain.com/api/; default match: domain.com; A special one: domain.com/ is exact match.
+
+	$ nico 'domain.com /path/to/web/root' 'domain.com/ws http://127.0.0.1:9999' 'domain.com/api/ http://127.0.0.1:2020'
+
+Multiple domains:
+
+	$ nico 'domain0.com /path/to/web/root' 'domain1.com /another/web/root' 'domain1.com/ws http://127.0.0.1:9999' 'domain1.com/api/ http://127.0.0.1:2020'
+
+Env variables:
+
+	NICO_MAX_BODY: Maximum body size(b)
+	NICO_TIMEOUT: Read/write timeout(s)
 
 Verson:
-	v20200925
+	v20210519
 
 Copyright:
 	https://github.com/txthinking/nico

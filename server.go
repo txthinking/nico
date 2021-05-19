@@ -10,7 +10,6 @@ import (
 
 	"github.com/didip/tollbooth"
 	"github.com/didip/tollbooth/limiter"
-	"github.com/unrolled/secure"
 	"github.com/urfave/negroni"
 	"golang.org/x/crypto/acme/autocert"
 )
@@ -29,29 +28,16 @@ func Server(ll []string) (*http.Server, error) {
 
 	n := negroni.New()
 	n.Use(negroni.NewRecovery())
-	n.Use(negroni.HandlerFunc(secure.New(secure.Options{
-		AllowedHosts:            nico.Domains(),
-		SSLRedirect:             false,
-		STSSeconds:              315360000,
-		STSIncludeSubdomains:    true,
-		STSPreload:              true,
-		FrameDeny:               true,
-		CustomFrameOptionsValue: "SAMEORIGIN",
-		ContentTypeNosniff:      true,
-		BrowserXssFilter:        true,
-	}).HandlerFuncWithNext))
-
 	n.UseFunc(func(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 		w.Header().Set("Server", "github.com/txthinking/nico")
 		next(w, r)
 	})
 	if maxbody != 0 {
 		n.UseFunc(func(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
-			r.Body = http.MaxBytesReader(w, r.Body, maxbody*1024*1024)
+			r.Body = http.MaxBytesReader(w, r.Body, maxbody)
 			next(w, r)
 		})
 	}
-
 	lmt := tollbooth.NewLimiter(30, &limiter.ExpirableOptions{DefaultExpirationTTL: time.Hour})
 	lmt.SetIPLookups([]string{"RemoteAddr", "X-Forwarded-For", "X-Real-IP"})
 	n.UseFunc(func(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
@@ -64,7 +50,6 @@ func Server(ll []string) (*http.Server, error) {
 		}
 		next(w, r)
 	})
-
 	n.UseHandler(nico)
 
 	m := autocert.Manager{
