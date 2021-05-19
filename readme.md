@@ -27,6 +27,12 @@ $ nico 'domain.com /path/to/web/root'
 $ nico 'domain.com http://127.0.0.1:2020'
 ```
 
+### Reverse proxy https website
+
+```
+$ nico 'domain.com https://reactjs.org'
+```
+
 ### Dispatch according to path
 
 > Exact match: domain.com/ws<br/>

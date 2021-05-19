@@ -27,6 +27,12 @@ $ nico 'domain.com /path/to/web/root'
 $ nico 'domain.com http://127.0.0.1:2020'
 ```
 
+### 反向代理 https 网站
+
+```
+$ nico 'domain.com https://reactjs.org'
+```
+
 ### 根据路径分发
 
 > Exact match: domain.com/ws<br/>
