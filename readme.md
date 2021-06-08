@@ -7,6 +7,8 @@
 
 A HTTP2 web server for reverse proxy and single page application, automatically apply for ssl certificate, zero-configuration.
 
+❤️ A project by [txthinking.com](https://www.txthinking.com)
+
 ### Install via [nami](https://github.com/txthinking/nami)
 
 ```
@@ -57,10 +59,6 @@ You may like [joker](https://github.com/txthinking/joker)
 ## Why
 
 Nico is a simple HTTP2 web server, but she is enough in most cases. If you want to use rewrite, load balancing, you need to consider nginx or others.
-
-## Author
-
-A project by [txthinking](https://www.txthinking.com)
 
 ## License
 
