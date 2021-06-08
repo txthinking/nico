@@ -7,6 +7,8 @@
 
 一个HTTP2 web server, 支持反向代理和单页应用, 自动TLS证书. 零配置.
 
+❤️ A project by [txthinking.com](https://www.txthinking.com)
+
 ### 用 [nami](https://github.com/txthinking/nami) 安装
 
 ```
@@ -57,10 +59,6 @@ $ nico "domain0.com /path/to/web/root" "domain1.com /another/web/root" "domain1.
 ## 为什么
 
 Nico 是一个简单的HTTP2 web server, 但是在很多时候她已经足够了. 如果你需要更多复杂的功能, 可以考虑nginx等
-
-## 作者
-
-A project by [txthinking](https://www.txthinking.com)
 
 ## 开源协议
 
