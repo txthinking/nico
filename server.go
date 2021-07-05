@@ -16,13 +16,25 @@ import (
 
 func Server(ll []string) (*http.Server, error) {
 	nico := NewNico()
-	for _, v := range ll {
-		l := strings.Split(strings.TrimSpace(v), " ")
-		if len(l) != 2 {
-			return nil, errors.New("Invalid format: " + v)
+	if strings.Contains(ll[0], " ") {
+		for _, v := range ll {
+			l := strings.Split(strings.TrimSpace(v), " ")
+			if len(l) != 2 {
+				return nil, errors.New("Invalid format: " + v)
+			}
+			if err := nico.Add(l[0], l[1]); err != nil {
+				return nil, err
+			}
 		}
-		if err := nico.Add(l[0], l[1]); err != nil {
-			return nil, err
+	}
+	if !strings.Contains(ll[0], " ") {
+		if len(ll)%2 != 0 {
+			return nil, errors.New("The number of parameters should be even")
+		}
+		for i := 0; i < len(ll); i = i + 2 {
+			if err := nico.Add(ll[i], ll[i+1]); err != nil {
+				return nil, err
+			}
 		}
 	}
 

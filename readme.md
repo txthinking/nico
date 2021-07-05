@@ -20,19 +20,19 @@ $ nami install github.com/txthinking/nico
 > Make sure your domains are already resolved to your server IP and open 80/443 port
 
 ```
-$ nico "domain.com /path/to/web/root"
+$ nico domain.com /path/to/web/root
 ```
 
 ### Reverse proxy
 
 ```
-$ nico "domain.com http://127.0.0.1:2020"
+$ nico domain.com http://127.0.0.1:2020
 ```
 
 ### Reverse proxy https website
 
 ```
-$ nico "domain.com https://reactjs.org"
+$ nico domain.com https://reactjs.org
 ```
 
 ### Dispatch according to path
@@ -43,13 +43,13 @@ $ nico "domain.com https://reactjs.org"
 > A special one: domain.com/ is exact match
 
 ```
-$ nico "domain.com /path/to/web/root" "domain.com/ws http://127.0.0.1:9999" "domain.com/api/ http://127.0.0.1:2020"
+$ nico domain.com /path/to/web/root domain.com/ws http://127.0.0.1:9999 domain.com/api/ http://127.0.0.1:2020
 ```
 
 ### Multiple domains
 
 ```
-$ nico "domain0.com /path/to/web/root" "domain1.com /another/web/root" "domain1.com/ws http://127.0.0.1:9999" "domain1.com/api/ http://127.0.0.1:2020"
+$ nico domain0.com /path/to/web/root domain1.com /another/web/root domain1.com/ws http://127.0.0.1:9999 domain1.com/api/ http://127.0.0.1:2020
 ```
 
 ### Daemon

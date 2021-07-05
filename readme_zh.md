@@ -20,19 +20,19 @@ $ nami install github.com/txthinking/nico
 > 确保你的域名已经指向你的服务器, 并且防火墙已经开放服务器的80/443端口
 
 ```
-$ nico "domain.com /path/to/web/root"
+$ nico domain.com /path/to/web/root
 ```
 
 ### 反向代理
 
 ```
-$ nico "domain.com http://127.0.0.1:2020"
+$ nico domain.com http://127.0.0.1:2020
 ```
 
 ### 反向代理 https 网站
 
 ```
-$ nico "domain.com https://reactjs.org"
+$ nico domain.com https://reactjs.org
 ```
 
 ### 根据路径分发
@@ -43,13 +43,13 @@ $ nico "domain.com https://reactjs.org"
 > A special one: domain.com/ is exact match
 
 ```
-$ nico "domain.com /path/to/web/root" "domain.com/ws http://127.0.0.1:9999" "domain.com/api/ http://127.0.0.1:2020"
+$ nico domain.com /path/to/web/root domain.com/ws http://127.0.0.1:9999 domain.com/api/ http://127.0.0.1:2020
 ```
 
 ### 多个域名
 
 ```
-$ nico "domain0.com /path/to/web/root" "domain1.com /another/web/root" "domain1.com/ws http://127.0.0.1:9999" "domain1.com/api/ http://127.0.0.1:2020"
+$ nico domain0.com /path/to/web/root domain1.com /another/web/root domain1.com/ws http://127.0.0.1:9999 domain1.com/api/ http://127.0.0.1:2020
 ```
 
 ### 守护进程
