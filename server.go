@@ -41,7 +41,7 @@ func Server(ll []string) (*http.Server, error) {
 	n := negroni.New()
 	n.Use(negroni.NewRecovery())
 	n.UseFunc(func(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
-		w.Header().Set("Server", "github.com/txthinking/nico")
+		w.Header().Set("Server", niconame)
 		next(w, r)
 	})
 	if maxbody != 0 {

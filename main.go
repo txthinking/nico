@@ -26,10 +26,14 @@ import (
 
 var maxbody int64 = 0
 var timeout int64 = 0
+var niconame string = "github.com/txthinking/nico"
 
 func main() {
 	maxbody, _ = strconv.ParseInt(os.Getenv("NICO_MAX_BODY"), 10, 64)
 	timeout, _ = strconv.ParseInt(os.Getenv("NICO_TIMEOUT"), 10, 64)
+	if s := os.Getenv("NICO_NAME"); s != "" {
+		niconame = s
+	}
 
 	if len(os.Args) == 1 || (len(os.Args) > 1 && (os.Args[1] == "version" || os.Args[1] == "help" || os.Args[1] == "-v" || os.Args[1] == "--version" || os.Args[1] == "-h" || os.Args[1] == "--help")) {
 		fmt.Print(`
@@ -65,7 +69,7 @@ Env variables:
 	NICO_TIMEOUT: Read/write timeout(s)
 
 Verson:
-	v20210701
+	v202107024
 
 Copyright:
 	https://github.com/txthinking/nico
