@@ -79,6 +79,6 @@ func Server(ll []string) (*http.Server, error) {
 		MaxHeaderBytes: 1 << 20,
 		Handler:        n,
 		ErrorLog:       log.New(&tlserr{}, "", log.LstdFlags),
-		TLSConfig:      &tls.Config{GetCertificate: m.GetCertificate},
+		TLSConfig:      &tls.Config{GetCertificate: m.GetCertificate, MaxVersion: tlsmaxversion},
 	}, nil
 }
