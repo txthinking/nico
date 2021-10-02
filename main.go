@@ -74,7 +74,7 @@ Env variables:
 	NICO_TIMEOUT: Read/write timeout(s)
 
 Verson:
-	v20211001
+	v20211002
 
 Copyright:
 	https://github.com/txthinking/nico
