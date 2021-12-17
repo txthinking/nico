@@ -16,28 +16,28 @@ package main
 
 import (
 	"context"
-	"crypto/tls"
 	"fmt"
 	"log"
 	"os"
 	"os/signal"
 	"strconv"
 	"syscall"
+
+	"github.com/txthinking/brook/limits"
 )
 
 var maxbody int64 = 0
 var timeout int64 = 0
 var niconame string = "github.com/txthinking/nico"
-var tlsmaxversion uint16 = tls.VersionTLS13
 
 func main() {
+	if err := limits.Raise(); err != nil {
+		log.Println("Try to raise system limits, got", err)
+	}
 	maxbody, _ = strconv.ParseInt(os.Getenv("NICO_MAX_BODY"), 10, 64)
 	timeout, _ = strconv.ParseInt(os.Getenv("NICO_TIMEOUT"), 10, 64)
 	if s := os.Getenv("NICO_NAME"); s != "" {
 		niconame = s
-	}
-	if os.Getenv("NICO_DISABLE_TLS13") == "1" {
-		tlsmaxversion = tls.VersionTLS12
 	}
 
 	if len(os.Args) == 1 || (len(os.Args) > 1 && (os.Args[1] == "version" || os.Args[1] == "help" || os.Args[1] == "-v" || os.Args[1] == "--version" || os.Args[1] == "-h" || os.Args[1] == "--help")) {
@@ -74,7 +74,7 @@ Env variables:
 	NICO_TIMEOUT: Read/write timeout(s)
 
 Verson:
-	v20211002
+	v20211217
 
 Copyright:
 	https://github.com/txthinking/nico
