@@ -12,7 +12,7 @@
 ### 用 [nami](https://github.com/txthinking/nami) 安装
 
 ```
-$ nami install github.com/txthinking/nico
+$ nami install nico
 ```
 
 ### 静态服务器, 支持单页应用
