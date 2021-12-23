@@ -12,7 +12,7 @@ A HTTP2 web server for reverse proxy and single page application, automatically 
 ### Install via [nami](https://github.com/txthinking/nami)
 
 ```
-$ nami install github.com/txthinking/nico
+$ nami install nico
 ```
 
 ### Static server, can be used for single page application
