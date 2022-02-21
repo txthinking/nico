@@ -3,8 +3,12 @@ package main
 import (
 	"crypto/tls"
 	"errors"
+	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -64,21 +68,75 @@ func Server(ll []string) (*http.Server, error) {
 	})
 	n.UseHandler(nico)
 
-	m := autocert.Manager{
-		Cache:      autocert.DirCache(".letsencrypt"),
-		Prompt:     autocert.AcceptTOS,
-		HostPolicy: autocert.HostWhitelist(nico.Domains()...),
-		Email:      "cloud+nico@txthinking.com",
+	certs := make(map[string]*tls.Certificate)
+	auto := make([]string, 0)
+	for _, v := range nico.Domains() {
+		c, err := ioutil.ReadFile(filepath.Join(certpath, v+".cert.pem"))
+		if err != nil && !os.IsNotExist(err) {
+			return nil, err
+		}
+		k, err := ioutil.ReadFile(filepath.Join(certpath, v+".key.pem"))
+		if err != nil && !os.IsNotExist(err) {
+			return nil, err
+		}
+		if c != nil && k != nil {
+			ct, err := tls.X509KeyPair(c, k)
+			if err != nil {
+				return nil, err
+			}
+			certs[v] = &ct
+			continue
+		}
+		if strings.Index(v, ".") != -1 {
+			c, err := ioutil.ReadFile(filepath.Join(certpath, v[strings.Index(v, "."):]+".cert.pem"))
+			if err != nil && !os.IsNotExist(err) {
+				return nil, err
+			}
+			k, err := ioutil.ReadFile(filepath.Join(certpath, v[strings.Index(v, "."):]+".key.pem"))
+			if err != nil && !os.IsNotExist(err) {
+				return nil, err
+			}
+			if c != nil && k != nil {
+				ct, err := tls.X509KeyPair(c, k)
+				if err != nil {
+					return nil, err
+				}
+				certs[v] = &ct
+				continue
+			}
+		}
+		auto = append(auto, v)
 	}
-	go http.ListenAndServe(":80", m.HTTPHandler(nil))
+
+	var m autocert.Manager
+	if len(auto) != 0 {
+		m = autocert.Manager{
+			Cache:      autocert.DirCache(".letsencrypt"),
+			Prompt:     autocert.AcceptTOS,
+			HostPolicy: autocert.HostWhitelist(auto...),
+			Email:      "cloud+nico@txthinking.com",
+		}
+		go http.ListenAndServe(":80", m.HTTPHandler(nil))
+	}
 	return &http.Server{
-		Addr:           ":443",
+		Addr:           ":" + strconv.FormatInt(port, 10),
 		ReadTimeout:    time.Duration(timeout) * time.Second,
 		WriteTimeout:   time.Duration(timeout) * time.Second,
 		IdleTimeout:    time.Duration(timeout) * time.Second,
 		MaxHeaderBytes: 1 << 20,
 		Handler:        n,
 		ErrorLog:       log.New(&tlserr{}, "", log.LstdFlags),
-		TLSConfig:      &tls.Config{GetCertificate: m.GetCertificate},
+		TLSConfig: &tls.Config{
+			GetCertificate: func(c *tls.ClientHelloInfo) (*tls.Certificate, error) {
+				v, ok := certs[c.ServerName]
+				if ok {
+					return v, nil
+				}
+				if len(auto) != 0 {
+					return m.GetCertificate(c)
+				}
+				return nil, errors.New("Not found " + c.ServerName)
+			},
+		},
 	}, nil
 }

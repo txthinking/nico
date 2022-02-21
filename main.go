@@ -28,16 +28,29 @@ import (
 
 var maxbody int64 = 0
 var timeout int64 = 0
+var port int64 = 443
 var niconame string = "github.com/txthinking/nico"
+var certpath string = "/root/.nico/"
 
 func main() {
 	if err := limits.Raise(); err != nil {
 		log.Println("Try to raise system limits, got", err)
 	}
+	if os.Getenv("NICO_PORT") != "" {
+		var err error
+		port, err = strconv.ParseInt(os.Getenv("NICO_PORT"), 10, 64)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+	}
 	maxbody, _ = strconv.ParseInt(os.Getenv("NICO_MAX_BODY"), 10, 64)
 	timeout, _ = strconv.ParseInt(os.Getenv("NICO_TIMEOUT"), 10, 64)
 	if s := os.Getenv("NICO_NAME"); s != "" {
 		niconame = s
+	}
+	if s := os.Getenv("NICO_CERT"); s != "" {
+		certpath = s
 	}
 
 	if len(os.Args) == 1 || (len(os.Args) > 1 && (os.Args[1] == "version" || os.Args[1] == "help" || os.Args[1] == "-v" || os.Args[1] == "--version" || os.Args[1] == "-h" || os.Args[1] == "--help")) {
@@ -68,13 +81,37 @@ Multiple domains:
 
 	$ nico domain0.com /path/to/web/root domain1.com /another/web/root domain1.com/ws http://127.0.0.1:9999 domain1.com/api/ http://127.0.0.1:2020
 
+Custom certificate:
+
+	Put your certificate to NICO_CERT, default: /root/.nico/
+	- File name format
+		- DOMAIN.cert.pem
+		- DOMAIN.key.pem
+	- Simple domain certificate
+		- Example: domain.com
+			- domain.com.cert.pem
+			- domain.com.key.pem
+		- Example: a.domain.com
+			- a.domain.com.cert.pem
+			- a.domain.com.key.pem
+	- Wildcard domain certificate
+		- Example: *.domain.com
+			- .domain.com.cert.pem
+			- .domain.com.key.pem
+		- Example: *.a.domain.com
+			- .a.domain.com.cert.pem
+			- .a.domain.com.key.pem
+	If nico does not find certificate for a domain name, then apply for a certificate automatically
+
 Env variables:
 
+	NICO_PORT: default 443
+	NICO_CERT: default /root/.nico/
 	NICO_MAX_BODY: Maximum body size(b)
 	NICO_TIMEOUT: Read/write timeout(s)
 
 Verson:
-	v20211217
+	v20220401
 
 Copyright:
 	https://github.com/txthinking/nico
