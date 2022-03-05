@@ -23,6 +23,7 @@ import (
 	"strconv"
 	"syscall"
 
+	"github.com/joho/godotenv"
 	"github.com/txthinking/brook/limits"
 )
 
@@ -36,11 +37,19 @@ func main() {
 	if err := limits.Raise(); err != nil {
 		log.Println("Try to raise system limits, got", err)
 	}
+	if err := godotenv.Load("/root/.nico.env"); err != nil {
+		if !os.IsNotExist(err) {
+			log.Println(err)
+			os.Exit(1)
+			return
+		}
+	}
 	if os.Getenv("NICO_PORT") != "" {
 		var err error
 		port, err = strconv.ParseInt(os.Getenv("NICO_PORT"), 10, 64)
 		if err != nil {
 			log.Println(err)
+			os.Exit(1)
 			return
 		}
 	}
@@ -110,8 +119,10 @@ Env variables:
 	NICO_MAX_BODY: Maximum body size(b)
 	NICO_TIMEOUT: Read/write timeout(s)
 
+Also supoorts dotenv on /root/.nico.env
+
 Verson:
-	v20220401
+	v20220404
 
 Copyright:
 	https://github.com/txthinking/nico
@@ -122,6 +133,7 @@ Copyright:
 	ss, err := Server(os.Args[1:])
 	if err != nil {
 		log.Println(err)
+		os.Exit(1)
 		return
 	}
 	go func() {
@@ -132,6 +144,7 @@ Copyright:
 	}()
 	if err := ss.ListenAndServeTLS("", ""); err != nil {
 		log.Println(err)
+		os.Exit(1)
 		return
 	}
 }
