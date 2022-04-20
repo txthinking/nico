@@ -122,7 +122,7 @@ Env variables:
 Also supoorts dotenv on /root/.nico.env
 
 Verson:
-	v20220404
+	v20220420
 
 Copyright:
 	https://github.com/txthinking/nico
