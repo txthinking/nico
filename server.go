@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io/ioutil"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -68,6 +69,7 @@ func Server(ll []string) (*http.Server, error) {
 	})
 	n.UseHandler(nico)
 
+	l := make([]tls.Certificate, 0)
 	certs := make(map[string]*tls.Certificate)
 	auto := make([]string, 0)
 	for _, v := range nico.Domains() {
@@ -85,6 +87,9 @@ func Server(ll []string) (*http.Server, error) {
 				return nil, err
 			}
 			certs[v] = &ct
+			if net.ParseIP(v) != nil {
+				l = append(l, ct)
+			}
 			continue
 		}
 		if strings.Index(v, ".") != -1 {
@@ -127,7 +132,9 @@ func Server(ll []string) (*http.Server, error) {
 		Handler:        n,
 		ErrorLog:       log.New(&tlserr{}, "", log.LstdFlags),
 		TLSConfig: &tls.Config{
+			Certificates: l,
 			GetCertificate: func(c *tls.ClientHelloInfo) (*tls.Certificate, error) {
+				log.Printf("%#v\n", c)
 				v, ok := certs[c.ServerName]
 				if ok {
 					return v, nil
