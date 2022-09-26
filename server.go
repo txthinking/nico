@@ -1,3 +1,17 @@
+// Copyright (c) 2020-present Cloud <cloud@txthinking.com>
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of version 3 of the GNU General Public
+// License as published by the Free Software Foundation.
+//
+// This program is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+// General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
 package main
 
 import (
@@ -15,30 +29,31 @@ import (
 
 	"github.com/didip/tollbooth"
 	"github.com/didip/tollbooth/limiter"
+	"github.com/lucas-clemente/quic-go/http3"
 	"github.com/urfave/negroni"
 	"golang.org/x/crypto/acme/autocert"
 )
 
-func Server(ll []string) (*http.Server, error) {
+func Server(ll []string) (*http.Server, *http3.Server, error) {
 	nico := NewNico()
 	if strings.Contains(ll[0], " ") {
 		for _, v := range ll {
 			l := strings.Split(strings.TrimSpace(v), " ")
 			if len(l) != 2 {
-				return nil, errors.New("Invalid format: " + v)
+				return nil, nil, errors.New("Invalid format: " + v)
 			}
 			if err := nico.Add(l[0], l[1]); err != nil {
-				return nil, err
+				return nil, nil, err
 			}
 		}
 	}
 	if !strings.Contains(ll[0], " ") {
 		if len(ll)%2 != 0 {
-			return nil, errors.New("The number of parameters should be even")
+			return nil, nil, errors.New("The number of parameters should be even")
 		}
 		for i := 0; i < len(ll); i = i + 2 {
 			if err := nico.Add(ll[i], ll[i+1]); err != nil {
-				return nil, err
+				return nil, nil, err
 			}
 		}
 	}
@@ -75,16 +90,16 @@ func Server(ll []string) (*http.Server, error) {
 	for _, v := range nico.Domains() {
 		c, err := ioutil.ReadFile(filepath.Join(certpath, v+".cert.pem"))
 		if err != nil && !os.IsNotExist(err) {
-			return nil, err
+			return nil, nil, err
 		}
 		k, err := ioutil.ReadFile(filepath.Join(certpath, v+".key.pem"))
 		if err != nil && !os.IsNotExist(err) {
-			return nil, err
+			return nil, nil, err
 		}
 		if c != nil && k != nil {
 			ct, err := tls.X509KeyPair(c, k)
 			if err != nil {
-				return nil, err
+				return nil, nil, err
 			}
 			certs[v] = &ct
 			if net.ParseIP(v) != nil {
@@ -95,16 +110,16 @@ func Server(ll []string) (*http.Server, error) {
 		if strings.Index(v, ".") != -1 {
 			c, err := ioutil.ReadFile(filepath.Join(certpath, v[strings.Index(v, "."):]+".cert.pem"))
 			if err != nil && !os.IsNotExist(err) {
-				return nil, err
+				return nil, nil, err
 			}
 			k, err := ioutil.ReadFile(filepath.Join(certpath, v[strings.Index(v, "."):]+".key.pem"))
 			if err != nil && !os.IsNotExist(err) {
-				return nil, err
+				return nil, nil, err
 			}
 			if c != nil && k != nil {
 				ct, err := tls.X509KeyPair(c, k)
 				if err != nil {
-					return nil, err
+					return nil, nil, err
 				}
 				certs[v] = &ct
 				continue
@@ -123,27 +138,31 @@ func Server(ll []string) (*http.Server, error) {
 		}
 		go http.ListenAndServe(":80", m.HTTPHandler(nil))
 	}
-	return &http.Server{
-		Addr:           ":" + strconv.FormatInt(port, 10),
-		ReadTimeout:    time.Duration(timeout) * time.Second,
-		WriteTimeout:   time.Duration(timeout) * time.Second,
-		IdleTimeout:    time.Duration(timeout) * time.Second,
-		MaxHeaderBytes: 1 << 20,
-		Handler:        n,
-		ErrorLog:       log.New(&tlserr{}, "", log.LstdFlags),
-		TLSConfig: &tls.Config{
-			Certificates: l,
-			GetCertificate: func(c *tls.ClientHelloInfo) (*tls.Certificate, error) {
-				log.Printf("%#v\n", c)
-				v, ok := certs[c.ServerName]
-				if ok {
-					return v, nil
-				}
-				if len(auto) != 0 {
-					return m.GetCertificate(c)
-				}
-				return nil, errors.New("Not found " + c.ServerName)
-			},
+	tc := &tls.Config{
+		Certificates: l,
+		GetCertificate: func(c *tls.ClientHelloInfo) (*tls.Certificate, error) {
+			v, ok := certs[c.ServerName]
+			if ok {
+				return v, nil
+			}
+			if len(auto) != 0 {
+				return m.GetCertificate(c)
+			}
+			return nil, errors.New("Not found " + c.ServerName)
 		},
-	}, nil
+	}
+	return &http.Server{
+			Addr:           ":" + strconv.FormatInt(port, 10),
+			ReadTimeout:    time.Duration(timeout) * time.Second,
+			WriteTimeout:   time.Duration(timeout) * time.Second,
+			IdleTimeout:    time.Duration(timeout) * time.Second,
+			MaxHeaderBytes: 1 << 20,
+			Handler:        n,
+			ErrorLog:       log.New(&tlserr{}, "", log.LstdFlags),
+			TLSConfig:      tc,
+		}, &http3.Server{
+			Addr:      ":" + strconv.FormatInt(port, 10),
+			TLSConfig: tc,
+			Handler:   n,
+		}, nil
 }

@@ -1,4 +1,4 @@
-// Copyright (c) 2020-present Cloud <cloud@txthinking.com>
+// Copyright (c) 2016-present Cloud <cloud@txthinking.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of version 3 of the GNU General Public
@@ -15,17 +15,21 @@
 package main
 
 import (
-	"fmt"
-	"strings"
+	"log"
+	"net/http"
+	"testing"
+
+	"github.com/lucas-clemente/quic-go/http3"
 )
 
-type tlserr struct {
-}
-
-func (l *tlserr) Write(p []byte) (int, error) {
-	if strings.Contains(string(p), "TLS handshake error") {
-		return 0, nil
+func TestTest(t *testing.T) {
+	hc := http.Client{
+		Transport: &http3.RoundTripper{},
 	}
-	fmt.Printf("%s\n", p)
-	return 0, nil
+	res, err := hc.Get("https://test.txthinking.com")
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	log.Println(res.StatusCode, res.Proto)
 }

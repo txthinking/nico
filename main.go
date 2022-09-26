@@ -25,6 +25,7 @@ import (
 
 	"github.com/joho/godotenv"
 	"github.com/txthinking/brook/limits"
+	"github.com/txthinking/runnergroup"
 )
 
 var maxbody int64 = 0
@@ -122,7 +123,7 @@ Env variables:
 Also supoorts dotenv on /root/.nico.env
 
 Verson:
-	v20220420
+	v20220926
 
 Copyright:
 	https://github.com/txthinking/nico
@@ -130,19 +131,36 @@ Copyright:
 		return
 	}
 
-	ss, err := Server(os.Args[1:])
+	h2, h3, err := Server(os.Args[1:])
 	if err != nil {
 		log.Println(err)
 		os.Exit(1)
 		return
 	}
+	g := runnergroup.New()
+	g.Add(&runnergroup.Runner{
+		Start: func() error {
+			return h2.ListenAndServeTLS("", "")
+		},
+		Stop: func() error {
+			return h2.Shutdown(context.Background())
+		},
+	})
+	g.Add(&runnergroup.Runner{
+		Start: func() error {
+			return h3.ListenAndServe()
+		},
+		Stop: func() error {
+			return h3.Close()
+		},
+	})
 	go func() {
 		sigs := make(chan os.Signal, 1)
 		signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 		<-sigs
-		ss.Shutdown(context.Background())
+		g.Done()
 	}()
-	if err := ss.ListenAndServeTLS("", ""); err != nil {
+	if err := g.Wait(); err != nil {
 		log.Println(err)
 		os.Exit(1)
 		return
