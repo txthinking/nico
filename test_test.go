@@ -26,7 +26,7 @@ func TestTest(t *testing.T) {
 	hc := http.Client{
 		Transport: &http3.RoundTripper{},
 	}
-	res, err := hc.Get("https://test.txthinking.com")
+	res, err := hc.Get("https://http3.ooo")
 	if err != nil {
 		log.Println(err)
 		return
