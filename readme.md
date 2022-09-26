@@ -7,7 +7,7 @@
 [🩸 Youtube](https://www.youtube.com/txthinking) 
 [❤️ Sponsor](https://github.com/sponsors/txthinking)
 
-A HTTP2 web server for reverse proxy and single page application, automatically apply for ssl certificate, zero-configuration.
+A HTTP3 web server for reverse proxy and single page application, automatically apply for ssl certificate, zero-configuration.
 
 ❤️ A project by [txthinking.com](https://www.txthinking.com)
 
@@ -60,7 +60,7 @@ You may like [joker](https://github.com/txthinking/joker)
 
 ## Why
 
-Nico is a simple HTTP2 web server, but she is enough in most cases. If you want to use rewrite, load balancing, you need to consider nginx or others.
+Nico is a simple HTTP3 web server, but she is enough in most cases. If you want to use rewrite, load balancing, you need to consider nginx or others.
 
 ## License
 
