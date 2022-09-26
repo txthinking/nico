@@ -3,7 +3,7 @@
 [English](readme.md)
 
 [🗣 News](https://t.me/txthinking_news)
-[💬 Chat](https://join.txthinking.com)
+[💬 Chat](https://t.me/brookgroup)
 [🩸 Youtube](https://www.youtube.com/txthinking) 
 [❤️ Sponsor](https://github.com/sponsors/txthinking)
 
