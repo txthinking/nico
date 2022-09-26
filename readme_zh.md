@@ -7,7 +7,7 @@
 [🩸 Youtube](https://www.youtube.com/txthinking) 
 [❤️ Sponsor](https://github.com/sponsors/txthinking)
 
-一个HTTP2 web server, 支持反向代理和单页应用, 自动TLS证书. 零配置.
+一个HTTP3 web server, 支持反向代理和单页应用, 自动TLS证书. 零配置.
 
 ❤️ A project by [txthinking.com](https://www.txthinking.com)
 
@@ -60,7 +60,7 @@ $ nico domain0.com /path/to/web/root domain1.com /another/web/root domain1.com/w
 
 ## 为什么
 
-Nico 是一个简单的HTTP2 web server, 但是在很多时候她已经足够了. 如果你需要更多复杂的功能, 可以考虑nginx等
+Nico 是一个简单的HTTP3 web server, 但是在很多时候她已经足够了. 如果你需要更多复杂的功能, 可以考虑nginx等
 
 ## 开源协议
 
