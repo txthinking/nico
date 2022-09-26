@@ -67,7 +67,7 @@ func main() {
 		fmt.Print(`
 Nico:
 
-	A HTTP2 web server for reverse proxy and single page application, automatically apply for ssl certificate, zero-configuration.
+	A HTTP3 web server for reverse proxy and single page application, automatically apply for ssl certificate, zero-configuration.
 
 Make sure your domains are already resolved to your server IP and open 80/443 port
 
