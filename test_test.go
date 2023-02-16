@@ -19,7 +19,7 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/lucas-clemente/quic-go/http3"
+	"github.com/quic-go/quic-go/http3"
 )
 
 func TestTest(t *testing.T) {

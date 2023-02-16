@@ -29,7 +29,7 @@ import (
 
 	"github.com/didip/tollbooth"
 	"github.com/didip/tollbooth/limiter"
-	"github.com/lucas-clemente/quic-go/http3"
+	"github.com/quic-go/quic-go/http3"
 	"github.com/urfave/negroni"
 	"golang.org/x/crypto/acme/autocert"
 )

@@ -19,7 +19,9 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/exec"
 	"os/signal"
+	"runtime"
 	"strconv"
 	"syscall"
 
@@ -37,6 +39,13 @@ var certpath string = "/root/.nico/"
 func main() {
 	if err := limits.Raise(); err != nil {
 		log.Println("Try to raise system limits, got", err)
+	}
+	if runtime.GOOS == "linux" {
+		c := exec.Command("sysctl", "-w", "net.core.rmem_max=2500000")
+		b, err := c.CombinedOutput()
+		if err != nil {
+			log.Println("Try to raise UDP Receive Buffer Size", "got", string(b))
+		}
 	}
 	if err := godotenv.Load("/root/.nico.env"); err != nil {
 		if !os.IsNotExist(err) {
@@ -123,7 +132,7 @@ Env variables:
 Also supoorts dotenv on /root/.nico.env
 
 Verson:
-	v20220926
+	v20230216
 
 Copyright:
 	https://github.com/txthinking/nico
