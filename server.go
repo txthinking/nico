@@ -17,6 +17,7 @@ package main
 import (
 	"crypto/tls"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net"
@@ -60,6 +61,12 @@ func Server(ll []string) (*http.Server, *http3.Server, error) {
 
 	n := negroni.New()
 	n.Use(negroni.NewRecovery())
+	if os.Getenv("NICO_LOG") == "true" {
+		n.UseFunc(func(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
+			next(w, r)
+			fmt.Printf(`{"from": "%s", "method": "%s", "hostname": "%s", "path": "%s", "status": "%d", "time": "%s"}`+"\n", r.RemoteAddr, r.Method, r.Host, r.URL.Path, w.(negroni.ResponseWriter).Status(), time.Now().Format(time.RFC3339))
+		})
+	}
 	n.UseFunc(func(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 		w.Header().Set("Server", niconame)
 		next(w, r)
@@ -70,8 +77,8 @@ func Server(ll []string) (*http.Server, *http3.Server, error) {
 			next(w, r)
 		})
 	}
-	lmt := tollbooth.NewLimiter(30, &limiter.ExpirableOptions{DefaultExpirationTTL: time.Hour})
-	lmt.SetIPLookups([]string{"RemoteAddr", "X-Forwarded-For", "X-Real-IP"})
+	lmt := tollbooth.NewLimiter(float64(rate), &limiter.ExpirableOptions{DefaultExpirationTTL: time.Hour})
+	lmt.SetIPLookups([]string{"RemoteAddr"})
 	n.UseFunc(func(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 		httpError := tollbooth.LimitByRequest(lmt, w, r)
 		if httpError != nil {

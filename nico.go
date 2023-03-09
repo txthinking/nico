@@ -121,6 +121,7 @@ func (n *Nico) Domains() []string {
 }
 
 func (n *Nico) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	r.Header.Del("X-Forwarded-For")
 	h := r.Host
 	if strings.Contains(h, ":") {
 		var err error

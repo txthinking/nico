@@ -22,19 +22,11 @@ import (
 	"os/exec"
 	"os/signal"
 	"runtime"
-	"strconv"
 	"syscall"
 
-	"github.com/joho/godotenv"
 	"github.com/txthinking/brook/limits"
 	"github.com/txthinking/runnergroup"
 )
-
-var maxbody int64 = 0
-var timeout int64 = 0
-var port int64 = 443
-var niconame string = "github.com/txthinking/nico"
-var certpath string = "/root/.nico/"
 
 func main() {
 	if err := limits.Raise(); err != nil {
@@ -46,30 +38,6 @@ func main() {
 		if err != nil {
 			log.Println("Try to raise UDP Receive Buffer Size", "got", string(b))
 		}
-	}
-	if err := godotenv.Load("/root/.nico.env"); err != nil {
-		if !os.IsNotExist(err) {
-			log.Println(err)
-			os.Exit(1)
-			return
-		}
-	}
-	if os.Getenv("NICO_PORT") != "" {
-		var err error
-		port, err = strconv.ParseInt(os.Getenv("NICO_PORT"), 10, 64)
-		if err != nil {
-			log.Println(err)
-			os.Exit(1)
-			return
-		}
-	}
-	maxbody, _ = strconv.ParseInt(os.Getenv("NICO_MAX_BODY"), 10, 64)
-	timeout, _ = strconv.ParseInt(os.Getenv("NICO_TIMEOUT"), 10, 64)
-	if s := os.Getenv("NICO_NAME"); s != "" {
-		niconame = s
-	}
-	if s := os.Getenv("NICO_CERT"); s != "" {
-		certpath = s
 	}
 
 	if len(os.Args) == 1 || (len(os.Args) > 1 && (os.Args[1] == "version" || os.Args[1] == "help" || os.Args[1] == "-v" || os.Args[1] == "--version" || os.Args[1] == "-h" || os.Args[1] == "--help")) {
@@ -100,39 +68,27 @@ Multiple domains:
 
 	$ nico domain0.com /path/to/web/root domain1.com /another/web/root domain1.com/ws http://127.0.0.1:9999 domain1.com/api/ http://127.0.0.1:2020
 
-Custom certificate:
+Env variables or dotenv on $HOME/.nico.env:
 
-	Put your certificate to NICO_CERT, default: /root/.nico/
-	- File name format
-		- DOMAIN.cert.pem
-		- DOMAIN.key.pem
-	- Simple domain certificate
-		- Example: domain.com
-			- domain.com.cert.pem
-			- domain.com.key.pem
-		- Example: a.domain.com
-			- a.domain.com.cert.pem
-			- a.domain.com.key.pem
-	- Wildcard domain certificate
-		- Example: *.domain.com
-			- .domain.com.cert.pem
-			- .domain.com.key.pem
-		- Example: *.a.domain.com
-			- .a.domain.com.cert.pem
-			- .a.domain.com.key.pem
-	If nico does not find certificate for a domain name, then apply for a certificate automatically
+	NICO_PORT:     default: 443
+	NICO_MAX_BODY: maximum request body size(b), default: 0
+	NICO_TIMEOUT:  read/write timeout(s), default: 0
+	NICO_LOG:      default: false
+	NICO_CERT:     default: $HOME/.nico/
+	NICO_RATE:     DDoS mitigation, rate limit/second/IP, default: 30
 
-Env variables:
+Custom certificate in $NICO_CERT:
 
-	NICO_PORT: default 443
-	NICO_CERT: default /root/.nico/
-	NICO_MAX_BODY: Maximum body size(b)
-	NICO_TIMEOUT: Read/write timeout(s)
-
-Also supoorts dotenv on /root/.nico.env
+	- www.example.com
+		- $NICO_CERT/www.example.com.cert.pem
+		- $NICO_CERT/www.example.com.key.pem
+	- *.example.com
+		- $NICO_CERT/.domain.com.cert.pem
+		- $NICO_CERT/.domain.com.key.pem
+	- if nico does not find certificate for a domain name, then apply for a certificate automatically
 
 Verson:
-	v20230216
+	v20230309
 
 Copyright:
 	https://github.com/txthinking/nico
