@@ -2,10 +2,9 @@
 
 [中文](readme_zh.md)
 
-[🗣 News](https://t.me/txthinking_news)
+[🗣 News](https://t.me/s/txthinking_news)
 [💬 Chat](https://t.me/brookgroup)
 [🩸 Youtube](https://www.youtube.com/txthinking) 
-[❤️ Sponsor](https://github.com/sponsors/txthinking)
 
 A HTTP3 web server for reverse proxy and single page application, automatically apply for ssl certificate, zero-configuration.
 
