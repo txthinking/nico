@@ -2,10 +2,9 @@
 
 [English](readme.md)
 
-[🗣 News](https://t.me/txthinking_news)
+[🗣 News](https://t.me/s/txthinking_news)
 [💬 Chat](https://t.me/brookgroup)
 [🩸 Youtube](https://www.youtube.com/txthinking) 
-[❤️ Sponsor](https://github.com/sponsors/txthinking)
 
 一个HTTP3 web server, 支持反向代理和单页应用, 自动TLS证书. 零配置.
 
