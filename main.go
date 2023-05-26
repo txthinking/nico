@@ -83,12 +83,12 @@ Custom certificate in $NICO_CERT:
 		- $NICO_CERT/www.example.com.cert.pem
 		- $NICO_CERT/www.example.com.key.pem
 	- *.example.com
-		- $NICO_CERT/.domain.com.cert.pem
-		- $NICO_CERT/.domain.com.key.pem
+		- $NICO_CERT/.example.com.cert.pem
+		- $NICO_CERT/.example.com.key.pem
 	- if nico does not find certificate for a domain name, then apply for a certificate automatically
 
 Verson:
-	v20230309
+	v20230526
 
 Copyright:
 	https://github.com/txthinking/nico
