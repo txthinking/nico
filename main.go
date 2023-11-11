@@ -44,54 +44,56 @@ func main() {
 		fmt.Print(`
 Nico:
 
-	A HTTP3 web server for reverse proxy and single page application, automatically apply for ssl certificate, zero-configuration.
+    A HTTP3 web server for reverse proxy and single page application, automatically apply for ssl certificate, zero-configuration.
 
 Make sure your domains are already resolved to your server IP and open 80/443 port
 
 Static server, can be used for Single Page Application:
 
-	$ nico domain.com /path/to/web/root
+    $ nico domain.com /path/to/web/root
 
 Reverse proxy:
 
-	$ nico domain.com http://127.0.0.1:2020
+    $ nico domain.com http://127.0.0.1:2020
 
 Reverse proxy https website:
 
-	$ nico domain.com https://reactjs.org
+    $ nico domain.com https://reactjs.org
 
 Dispatch according to path, such as, exact match: domain.com/ws; prefix match when / is suffix: domain.com/api/; default match: domain.com; A special one: domain.com/ is exact match.
 
-	$ nico domain.com /path/to/web/root domain.com/ws http://127.0.0.1:9999 domain.com/api/ http://127.0.0.1:2020
+    $ nico domain.com /path/to/web/root domain.com/ws http://127.0.0.1:9999 domain.com/api/ http://127.0.0.1:2020
 
 Multiple domains:
 
-	$ nico domain0.com /path/to/web/root domain1.com /another/web/root domain1.com/ws http://127.0.0.1:9999 domain1.com/api/ http://127.0.0.1:2020
+    $ nico domain0.com /path/to/web/root domain1.com /another/web/root domain1.com/ws http://127.0.0.1:9999 domain1.com/api/ http://127.0.0.1:2020
 
 Env variables or dotenv on $HOME/.nico.env:
 
-	NICO_PORT:     default: 443
-	NICO_MAX_BODY: maximum request body size(b), default: 0
-	NICO_TIMEOUT:  read/write timeout(s), default: 0
-	NICO_LOG:      default: false
-	NICO_CERT:     default: $HOME/.nico/
-	NICO_RATE:     DDoS mitigation, rate limit/second/IP, default: 30
+    NICO_PORT:     default: 443
+    NICO_IP:       default all
+    NICO_MAX_BODY: maximum request body size(b), default: 0
+    NICO_TIMEOUT:  read/write timeout(s), default: 0
+    NICO_LOG:      default: false
+    NICO_CERT:     default: $HOME/.nico/
+    NICO_RATE:     DDoS mitigation, rate limit/second/IP, default: 30
+    NICO_HTTP3:    default: true, this is temporary and will be removed in the future. If you want to disable http3, set it as false
 
 Custom certificate in $NICO_CERT:
 
-	- www.example.com
-		- $NICO_CERT/www.example.com.cert.pem
-		- $NICO_CERT/www.example.com.key.pem
-	- *.example.com
-		- $NICO_CERT/.example.com.cert.pem
-		- $NICO_CERT/.example.com.key.pem
-	- if nico does not find certificate for a domain name, then apply for a certificate automatically
+    - www.example.com
+        - $NICO_CERT/www.example.com.cert.pem
+        - $NICO_CERT/www.example.com.key.pem
+    - *.example.com
+        - $NICO_CERT/.example.com.cert.pem
+        - $NICO_CERT/.example.com.key.pem
+    - if nico does not find certificate for a domain name, then apply for a certificate automatically
 
 Verson:
-	v20230526
+    v20231111
 
 Copyright:
-	https://github.com/txthinking/nico
+    https://github.com/txthinking/nico
 `)
 		return
 	}
@@ -111,14 +113,16 @@ Copyright:
 			return h2.Shutdown(context.Background())
 		},
 	})
-	g.Add(&runnergroup.Runner{
-		Start: func() error {
-			return h3.ListenAndServe()
-		},
-		Stop: func() error {
-			return h3.Close()
-		},
-	})
+	if nicohttp3 != "false" {
+		g.Add(&runnergroup.Runner{
+			Start: func() error {
+				return h3.ListenAndServe()
+			},
+			Stop: func() error {
+				return h3.Close()
+			},
+		})
+	}
 	go func() {
 		sigs := make(chan os.Signal, 1)
 		signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)

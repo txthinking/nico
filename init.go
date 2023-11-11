@@ -29,6 +29,8 @@ var port int64 = 443
 var rate int64 = 30
 var niconame string = "github.com/txthinking/nico"
 var certpath string = ""
+var nicoip string = ""
+var nicohttp3 string = ""
 
 func init() {
 	home, err := os.UserHomeDir()
@@ -79,8 +81,14 @@ func init() {
 	if s := os.Getenv("NICO_NAME"); s != "" {
 		niconame = s
 	}
+	if s := os.Getenv("NICO_IP"); s != "" {
+		nicoip = s
+	}
 	certpath = filepath.Join(home, ".nico")
 	if s := os.Getenv("NICO_CERT"); s != "" {
 		certpath = s
+	}
+	if s := os.Getenv("NICO_HTTP3"); s != "" {
+		nicohttp3 = s
 	}
 }

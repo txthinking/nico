@@ -18,7 +18,6 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net"
 	"net/http"
@@ -71,6 +70,12 @@ func Server(ll []string) (*http.Server, *http3.Server, error) {
 		w.Header().Set("Server", niconame)
 		next(w, r)
 	})
+	if nicohttp3 != "false" {
+		n.UseFunc(func(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
+			w.Header().Set("Alt-Svc", `h3=":`+strconv.FormatInt(port, 10)+`"; ma=2592000`)
+			next(w, r)
+		})
+	}
 	if maxbody != 0 {
 		n.UseFunc(func(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 			r.Body = http.MaxBytesReader(w, r.Body, maxbody)
@@ -95,11 +100,11 @@ func Server(ll []string) (*http.Server, *http3.Server, error) {
 	certs := make(map[string]*tls.Certificate)
 	auto := make([]string, 0)
 	for _, v := range nico.Domains() {
-		c, err := ioutil.ReadFile(filepath.Join(certpath, v+".cert.pem"))
+		c, err := os.ReadFile(filepath.Join(certpath, v+".cert.pem"))
 		if err != nil && !os.IsNotExist(err) {
 			return nil, nil, err
 		}
-		k, err := ioutil.ReadFile(filepath.Join(certpath, v+".key.pem"))
+		k, err := os.ReadFile(filepath.Join(certpath, v+".key.pem"))
 		if err != nil && !os.IsNotExist(err) {
 			return nil, nil, err
 		}
@@ -115,11 +120,11 @@ func Server(ll []string) (*http.Server, *http3.Server, error) {
 			continue
 		}
 		if strings.Index(v, ".") != -1 {
-			c, err := ioutil.ReadFile(filepath.Join(certpath, v[strings.Index(v, "."):]+".cert.pem"))
+			c, err := os.ReadFile(filepath.Join(certpath, v[strings.Index(v, "."):]+".cert.pem"))
 			if err != nil && !os.IsNotExist(err) {
 				return nil, nil, err
 			}
-			k, err := ioutil.ReadFile(filepath.Join(certpath, v[strings.Index(v, "."):]+".key.pem"))
+			k, err := os.ReadFile(filepath.Join(certpath, v[strings.Index(v, "."):]+".key.pem"))
 			if err != nil && !os.IsNotExist(err) {
 				return nil, nil, err
 			}
@@ -143,7 +148,7 @@ func Server(ll []string) (*http.Server, *http3.Server, error) {
 			HostPolicy: autocert.HostWhitelist(auto...),
 			Email:      "cloud+nico@txthinking.com",
 		}
-		go http.ListenAndServe(":80", m.HTTPHandler(nil))
+		go http.ListenAndServe(net.JoinHostPort(nicoip, "80"), m.HTTPHandler(nil))
 	}
 	tc := &tls.Config{
 		Certificates: l,
@@ -159,7 +164,7 @@ func Server(ll []string) (*http.Server, *http3.Server, error) {
 		},
 	}
 	return &http.Server{
-			Addr:           ":" + strconv.FormatInt(port, 10),
+			Addr:           net.JoinHostPort(nicoip, strconv.FormatInt(port, 10)),
 			ReadTimeout:    time.Duration(timeout) * time.Second,
 			WriteTimeout:   time.Duration(timeout) * time.Second,
 			IdleTimeout:    time.Duration(timeout) * time.Second,
@@ -168,7 +173,7 @@ func Server(ll []string) (*http.Server, *http3.Server, error) {
 			ErrorLog:       log.New(&tlserr{}, "", log.LstdFlags),
 			TLSConfig:      tc,
 		}, &http3.Server{
-			Addr:      ":" + strconv.FormatInt(port, 10),
+			Addr:      net.JoinHostPort(nicoip, strconv.FormatInt(port, 10)),
 			TLSConfig: tc,
 			Handler:   n,
 		}, nil
