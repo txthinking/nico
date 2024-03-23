@@ -21,9 +21,11 @@ import (
 	"os"
 	"os/exec"
 	"os/signal"
+	"path/filepath"
 	"runtime"
 	"syscall"
 
+	"github.com/txthinking/brook"
 	"github.com/txthinking/brook/limits"
 	"github.com/txthinking/runnergroup"
 )
@@ -90,7 +92,7 @@ Custom certificate in $NICO_CERT:
     - if nico does not find certificate for a domain name, then apply for a certificate automatically
 
 Verson:
-    v20231111
+    v20240323
 
 Copyright:
     https://github.com/txthinking/nico
@@ -98,7 +100,30 @@ Copyright:
 		return
 	}
 
-	h2, h3, err := Server(os.Args[1:])
+	l := os.Args
+	if len(os.Args) == 2 {
+		if _, err := os.Stat(os.Args[1]); err == nil {
+			if !filepath.IsAbs(os.Args[1]) {
+				log.Println("It looks like you passed config file? It must be absolute path")
+				os.Exit(1)
+				return
+			}
+			l, err = brook.CAC(os.Args[1])
+			if err != nil {
+				log.Println(err)
+				os.Exit(1)
+				return
+			}
+			bin, err := os.Executable()
+			if err != nil {
+				log.Println(err)
+				os.Exit(1)
+				return
+			}
+			l = append([]string{bin}, l...)
+		}
+	}
+	h2, h3, err := Server(l[1:])
 	if err != nil {
 		log.Println(err)
 		os.Exit(1)
