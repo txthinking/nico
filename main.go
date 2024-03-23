@@ -62,7 +62,7 @@ Reverse proxy https website:
 
     $ nico domain.com https://reactjs.org
 
-Dispatch according to path, such as, exact match: domain.com/ws; prefix match when / is suffix: domain.com/api/; default match: domain.com; A special one: domain.com/ is exact match.
+Dispatch according to path, such as, exact match: domain.com/ws; prefix match when / is suffix: domain.com/api/, a special one: domain.com/ is exact match; default match: domain.com.
 
     $ nico domain.com /path/to/web/root domain.com/ws http://127.0.0.1:9999 domain.com/api/ http://127.0.0.1:2020
 

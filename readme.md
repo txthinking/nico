@@ -1,11 +1,5 @@
 # Nico
 
-[中文](readme_zh.md)
-
-[🗣 News](https://t.me/s/txthinking_news)
-[💬 Chat](https://t.me/brookgroup)
-[🩸 Youtube](https://www.youtube.com/txthinking) 
-
 A HTTP3 web server for reverse proxy and single page application, automatically apply for ssl certificate, zero-configuration.
 
 ❤️ A project by [txthinking.com](https://www.txthinking.com)
@@ -38,10 +32,9 @@ $ nico domain.com https://reactjs.org
 
 ### Dispatch according to path
 
-> Exact match: domain.com/ws<br/>
-> Prefix match when / is suffix: domain.com/api/<br/>
-> Default match: domain.com<br/>
-> A special one: domain.com/ is exact match
+- Exact match: domain.com/ws
+- Prefix match: when / is suffix, domain.com/api/. _A special one: domain.com/ is exact match_
+- Default match: domain.com
 
 ```
 $ nico domain.com /path/to/web/root domain.com/ws http://127.0.0.1:9999 domain.com/api/ http://127.0.0.1:2020
